@@ -16,6 +16,9 @@
       --muted:     #6b7399;
       --tag-bg:    #252c4a;
       --tag-text:  #a9b4e8;
+      --danger:    #e05a5a;
+      --danger-bg: #2a1a1a;
+      --success:   #5ae07a;
       --radius:    14px;
     }
 
@@ -33,7 +36,7 @@
       background: linear-gradient(135deg, #10122080 0%, #1a1040cc 100%),
                   url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%237c5cfc' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
       border-bottom: 1px solid var(--border);
-      padding: 2.5rem 1.5rem 2rem;
+      padding: 2.2rem 1.5rem 1.8rem;
       text-align: center;
     }
 
@@ -48,20 +51,24 @@
     }
 
     header p {
-      margin-top: 0.5rem;
+      margin-top: 0.4rem;
       color: var(--muted);
       font-size: 0.95rem;
     }
 
-    /* ── Search ── */
+    /* ── Controls row ── */
     .controls {
-      max-width: 900px;
-      margin: 1.8rem auto 0;
+      max-width: 860px;
+      margin: 1.6rem auto 0;
       padding: 0 1rem;
+      display: flex;
+      gap: 0.7rem;
+      align-items: center;
     }
 
     .search-wrap {
       position: relative;
+      flex: 1;
     }
 
     .search-wrap svg {
@@ -75,7 +82,7 @@
 
     #search {
       width: 100%;
-      padding: 0.75rem 1rem 0.75rem 2.75rem;
+      padding: 0.72rem 1rem 0.72rem 2.75rem;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -88,10 +95,38 @@
     #search::placeholder { color: var(--muted); }
     #search:focus { border-color: var(--accent); }
 
+    .btn-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.72rem 1.1rem;
+      border-radius: var(--radius);
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter .18s, transform .15s;
+      white-space: nowrap;
+    }
+
+    .btn-header:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    #open-modal-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    #export-btn {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      border: 1px solid var(--border);
+    }
+
     /* ── Grid ── */
     main {
       max-width: 1100px;
-      margin: 2rem auto 4rem;
+      margin: 2rem auto 5rem;
       padding: 0 1rem;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -175,7 +210,7 @@
       flex-shrink: 0;
     }
 
-    /* ── Empty state ── */
+    /* ── Empty search state ── */
     #empty {
       display: none;
       grid-column: 1 / -1;
@@ -194,25 +229,255 @@
       font-size: 0.78rem;
       border-top: 1px solid var(--border);
     }
+
+    /* ════════════════════════════════════════════
+       MODAL
+    ════════════════════════════════════════════ */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 6, 15, 0.78);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1rem;
+      opacity: 1;
+      transition: opacity .2s;
+    }
+
+    #modal-overlay.hidden {
+      display: none;
+    }
+
+    #modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      width: 100%;
+      max-width: 460px;
+      max-height: 92vh;
+      overflow-y: auto;
+      padding: 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.3rem;
+      box-shadow: 0 24px 60px #00000088;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #e8ecff;
+    }
+
+    #modal-close {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      transition: background .15s, color .15s;
+      line-height: 1;
+    }
+
+    #modal-close:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    /* ── Tabs ── */
+    .modal-tabs {
+      display: flex;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 0.52rem 0.5rem;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .tab-panel { display: flex; flex-direction: column; gap: 1rem; }
+    .tab-panel.hidden { display: none; }
+
+    /* ── Form elements ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input,
+    .form-group select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-size: 0.93rem;
+      padding: 0.6rem 0.85rem;
+      outline: none;
+      transition: border-color .2s;
+      width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--accent);
+    }
+
+    .form-group select option {
+      background: var(--card);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 0.75rem;
+    }
+
+    /* ── Dynamic item inputs ── */
+    #city-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .item-input-row {
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .item-input-row input { flex: 1; }
+
+    .remove-item-btn {
+      flex-shrink: 0;
+      background: var(--danger-bg);
+      border: 1px solid #4a2020;
+      color: var(--danger);
+      border-radius: 8px;
+      padding: 0 0.65rem;
+      cursor: pointer;
+      font-size: 1.05rem;
+      line-height: 1;
+      transition: background .15s;
+    }
+
+    .remove-item-btn:hover { background: #3a1515; }
+
+    #add-item-field-btn {
+      align-self: flex-start;
+      background: var(--tag-bg);
+      border: 1px dashed var(--border);
+      color: var(--tag-text);
+      border-radius: 8px;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+
+    #add-item-field-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Submit button ── */
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 0.72rem 1.5rem;
+      cursor: pointer;
+      width: 100%;
+      transition: filter .2s, transform .15s;
+      margin-top: 0.2rem;
+    }
+
+    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #162216;
+      border: 1px solid #2e5c2e;
+      color: var(--success);
+      border-radius: 99px;
+      padding: 0.55rem 1.4rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform .28s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
 
+<!-- ── Header ── -->
 <header>
   <h1>⚔️ Wonderland Online — NPC Shop Guide</h1>
   <p>Find out what each city's NPC sells at a glance.</p>
 
   <div class="controls">
     <div class="search-wrap">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
            viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input id="search" type="search" placeholder="Search city or item…" autocomplete="off" />
     </div>
+    <button id="open-modal-btn" class="btn-header">＋ Add Info</button>
+    <button id="export-btn" class="btn-header" title="Download updated data.js">⬇ Export</button>
   </div>
 </header>
 
+<!-- ── City cards grid ── -->
 <main id="grid">
-  <!-- Cards are injected by JS -->
   <div id="empty">
     <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -221,142 +486,399 @@
   </div>
 </main>
 
+<!-- ════════════════════════════════════════════
+     ADD INFO MODAL
+════════════════════════════════════════════ -->
+<div id="modal-overlay" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div id="modal">
+
+    <div class="modal-header">
+      <h2 id="modal-title">Add Info</h2>
+      <button id="modal-close" aria-label="Close modal">✕</button>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="modal-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="city" role="tab" aria-selected="true">🏙️ Add City</button>
+      <button class="tab-btn"        data-tab="item" role="tab" aria-selected="false">📦 Add Item</button>
+    </div>
+
+    <!-- ── Add City panel ── -->
+    <div id="tab-city" class="tab-panel" role="tabpanel">
+      <form id="city-form" autocomplete="off" novalidate>
+
+        <div class="form-group">
+          <label for="city-name">City Name <span style="color:var(--danger)">*</span></label>
+          <input id="city-name" type="text" placeholder="e.g. Alexandria" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city-icon">Icon</label>
+            <input id="city-icon" type="text" placeholder="🏙️" maxlength="4" />
+          </div>
+          <div class="form-group">
+            <label for="city-note">Note</label>
+            <input id="city-note" type="text" placeholder="e.g. Inside house" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Items Sold</label>
+          <div id="city-items-list"></div>
+          <button type="button" id="add-item-field-btn">＋ Add another item</button>
+        </div>
+
+        <button type="submit" class="btn-primary">Add City</button>
+      </form>
+    </div>
+
+    <!-- ── Add Item panel ── -->
+    <div id="tab-item" class="tab-panel hidden" role="tabpanel">
+      <form id="item-form" autocomplete="off" novalidate>
+
+        <div class="form-group">
+          <label for="item-city">City <span style="color:var(--danger)">*</span></label>
+          <select id="item-city"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="item-name">Item Name <span style="color:var(--danger)">*</span></label>
+          <input id="item-name" type="text" placeholder="e.g. Iron Ore" />
+        </div>
+
+        <button type="submit" class="btn-primary">Add Item</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Toast notification ── -->
+<div id="toast" aria-live="polite"></div>
+
 <footer>
-  Wonderland Online NPC Guide &nbsp;·&nbsp; Last updated April 2026
+  Wonderland Online NPC Guide &nbsp;·&nbsp; Data in <code>data.js</code> — use Export to save UI changes
 </footer>
+
+<!-- Data file (edit data.js to update base data) -->
+<script src="data.js"></script>
 
 <script>
   // ─────────────────────────────────────────────────────────────────
-  //  DATA — add / remove / edit entries here as the game changes
-  //
-  //  Each entry:
-  //    city   : display name
-  //    icon   : any emoji that fits the city feel
-  //    note   : optional subtitle (e.g. location hint)
-  //    sells  : array of item strings
+  //  STORAGE HELPERS
+  //  UI additions are stored in localStorage so data.js stays clean.
+  //  Use "Export" to download a data.js with everything merged in.
   // ─────────────────────────────────────────────────────────────────
-  const CITIES = [
-    {
-      city: "Kelan",
-      icon: "🏚️",
-      note: "",
-      sells: ["Clay"]
-    },
-    {
-      city: "Welling",
-      icon: "🌲",
-      note: "",
-      sells: ["Woods"]
-    },
-    {
-      city: "Holy",
-      icon: "⛪",
-      note: "",
-      sells: ["Ores"]
-    },
-    {
-      city: "Rome",
-      icon: "🏛️",
-      note: "",
-      sells: ["Flowers"]
-    },
-    {
-      city: "Korea",
-      icon: "🏯",
-      note: "",
-      sells: ["Cottons"]
-    },
-    {
-      city: "China",
-      icon: "🀄",
-      note: "Inside house",
-      sells: ["Dyes"]
-    },
-    {
-      city: "Chang An",
-      icon: "🔮",
-      note: "",
-      sells: ["White Crystals", "Ruby"]
-    },
-    {
-      city: "Cornwall",
-      icon: "🐄",
-      note: "",
-      sells: ["Leathers"]
-    },
-    {
-      city: "Mayan",
-      icon: "🗿",
-      note: "",
-      sells: ["White Silveries", "Bluestone"]
-    },
-    {
-      city: "South Pole",
-      icon: "🧊",
-      note: "",
-      sells: ["Furs", "Skins"]
-    },
-    {
-      city: "Persia",
-      icon: "🪬",
-      note: "",
-      sells: ["Jades"]
-    },
-    {
-      city: "Bangkok",
-      icon: "⚗️",
-      note: "",
-      sells: ["Sulfur", "Sealed Potion"]
-    },
-  ];
 
-  // ── Render ──────────────────────────────────────────────────────
+  const LS_KEY = 'wlo_additions';
+
+  function loadAdditions() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEY)) || { newCities: [], extraItems: {} };
+    } catch {
+      return { newCities: [], extraItems: {} };
+    }
+  }
+
+  function saveAdditions(additions) {
+    localStorage.setItem(LS_KEY, JSON.stringify(additions));
+  }
+
+  // Merge CITY_DATA (from data.js) with any localStorage additions
+  function getMergedData() {
+    const additions = loadAdditions();
+
+    // Deep-copy base data
+    const merged = CITY_DATA.map(c => ({
+      ...c,
+      sells: [...c.sells, ...(additions.extraItems[c.city] || [])]
+    }));
+
+    // Append new cities added via UI
+    additions.newCities.forEach(nc => {
+      merged.push({
+        ...nc,
+        sells: [...nc.sells, ...(additions.extraItems[nc.city] || [])]
+      });
+    });
+
+    return merged;
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  RENDER
+  // ─────────────────────────────────────────────────────────────────
+
   const grid  = document.getElementById('grid');
   const empty = document.getElementById('empty');
 
-  function buildCards() {
-    CITIES.forEach((entry, idx) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.dataset.idx = idx;
+  function buildCard(entry) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.city = entry.city;
 
-      const tags = entry.sells
-        .map(item => `<span class="tag"><span class="dot"></span>${item}</span>`)
-        .join('');
+    const tags = entry.sells
+      .map(item => `<span class="tag"><span class="dot"></span>${escHtml(item)}</span>`)
+      .join('');
 
-      card.innerHTML = `
-        <div class="card-header">
-          <div class="city-icon">${entry.icon}</div>
-          <div>
-            <div class="city-name">${entry.city}</div>
-            ${entry.note ? `<div class="city-note">${entry.note}</div>` : ''}
-          </div>
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="city-icon">${escHtml(entry.icon || '🏙️')}</div>
+        <div>
+          <div class="city-name">${escHtml(entry.city)}</div>
+          ${entry.note ? `<div class="city-note">${escHtml(entry.note)}</div>` : ''}
         </div>
-        <div class="items-list">${tags}</div>
-      `;
+      </div>
+      <div class="items-list">${tags}</div>
+    `;
 
-      grid.insertBefore(card, empty);
-    });
+    return card;
   }
 
-  // ── Search ──────────────────────────────────────────────────────
-  document.getElementById('search').addEventListener('input', function () {
-    const q = this.value.trim().toLowerCase();
+  function renderAll() {
+    // Remove old cards (keep #empty)
+    grid.querySelectorAll('.card').forEach(c => c.remove());
+
+    getMergedData().forEach(entry => {
+      grid.insertBefore(buildCard(entry), empty);
+    });
+
+    applySearch();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  //  SEARCH
+  // ─────────────────────────────────────────────────────────────────
+
+  function applySearch() {
+    const q = document.getElementById('search').value.trim().toLowerCase();
     const cards = grid.querySelectorAll('.card');
     let visible = 0;
 
-    cards.forEach((card, i) => {
-      const entry = CITIES[i];
-      const haystack = [entry.city, entry.note, ...entry.sells].join(' ').toLowerCase();
-      const match = !q || haystack.includes(q);
+    cards.forEach(card => {
+      const cityName = card.dataset.city.toLowerCase();
+      const tags     = [...card.querySelectorAll('.tag')].map(t => t.textContent.toLowerCase()).join(' ');
+      const match    = !q || cityName.includes(q) || tags.includes(q);
       card.classList.toggle('hidden', !match);
       if (match) visible++;
     });
 
     empty.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  document.getElementById('search').addEventListener('input', applySearch);
+
+  // ─────────────────────────────────────────────────────────────────
+  //  MODAL
+  // ─────────────────────────────────────────────────────────────────
+
+  const overlay = document.getElementById('modal-overlay');
+
+  function openModal(tab = 'city') {
+    overlay.classList.remove('hidden');
+    switchTab(tab);
+    populateCityDropdown();
+    // Reset forms
+    document.getElementById('city-form').reset();
+    resetItemInputs();
+    document.getElementById('item-name').value = '';
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden');
+  }
+
+  document.getElementById('open-modal-btn').addEventListener('click', () => openModal('city'));
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ── Tabs ──────────────────────────────────────────────────────────
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      const active = btn.dataset.tab === name;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active);
+    });
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.classList.toggle('hidden', panel.id !== `tab-${name}`);
+    });
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchTab(btn.dataset.tab);
+      populateCityDropdown();
+    });
   });
 
-  buildCards();
+  // ─────────────────────────────────────────────────────────────────
+  //  ADD CITY — dynamic item input rows
+  // ─────────────────────────────────────────────────────────────────
+
+  function resetItemInputs() {
+    const list = document.getElementById('city-items-list');
+    list.innerHTML = '';
+    addItemInputRow(); // start with one blank row
+  }
+
+  function addItemInputRow(value = '') {
+    const list = document.getElementById('city-items-list');
+    const row  = document.createElement('div');
+    row.className = 'item-input-row';
+    row.innerHTML = `
+      <input type="text" placeholder="Item name" class="item-field" value="${escAttr(value)}" />
+      <button type="button" class="remove-item-btn" aria-label="Remove item">✕</button>
+    `;
+    row.querySelector('.remove-item-btn').addEventListener('click', () => {
+      // Always keep at least one row
+      if (document.querySelectorAll('.item-input-row').length > 1) {
+        row.remove();
+      } else {
+        row.querySelector('.item-field').value = '';
+      }
+    });
+    list.appendChild(row);
+    row.querySelector('.item-field').focus();
+  }
+
+  document.getElementById('add-item-field-btn').addEventListener('click', () => addItemInputRow());
+
+  // ── Submit Add City ───────────────────────────────────────────────
+
+  document.getElementById('city-form').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const name = document.getElementById('city-name').value.trim();
+    if (!name) { flashInvalid('city-name', 'City name is required'); return; }
+
+    const additions = loadAdditions();
+
+    // Check duplicate
+    const allCities = getMergedData().map(c => c.city.toLowerCase());
+    if (allCities.includes(name.toLowerCase())) {
+      flashInvalid('city-name', 'A city with this name already exists');
+      return;
+    }
+
+    const icon = document.getElementById('city-icon').value.trim() || '🏙️';
+    const note = document.getElementById('city-note').value.trim();
+    const sells = [...document.querySelectorAll('.item-field')]
+      .map(i => i.value.trim())
+      .filter(Boolean);
+
+    additions.newCities.push({ city: name, icon, note, sells });
+    saveAdditions(additions);
+
+    renderAll();
+    closeModal();
+    toast(`✓ ${name} added!`);
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  //  ADD ITEM
+  // ─────────────────────────────────────────────────────────────────
+
+  function populateCityDropdown() {
+    const sel = document.getElementById('item-city');
+    const prev = sel.value;
+    sel.innerHTML = '';
+    getMergedData().forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.city;
+      opt.textContent = c.city;
+      sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+  }
+
+  document.getElementById('item-form').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const cityName = document.getElementById('item-city').value;
+    const itemName = document.getElementById('item-name').value.trim();
+    if (!itemName) { flashInvalid('item-name', 'Item name is required'); return; }
+
+    const additions = loadAdditions();
+    if (!additions.extraItems[cityName]) additions.extraItems[cityName] = [];
+    additions.extraItems[cityName].push(itemName);
+    saveAdditions(additions);
+
+    renderAll();
+    closeModal();
+    toast(`✓ "${itemName}" added to ${cityName}`);
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  //  EXPORT  — downloads a ready-to-use data.js
+  // ─────────────────────────────────────────────────────────────────
+
+  document.getElementById('export-btn').addEventListener('click', () => {
+    const data = getMergedData();
+    const lines = data.map(c => {
+      const sells = JSON.stringify(c.sells);
+      return `  { city: ${JSON.stringify(c.city)}, icon: ${JSON.stringify(c.icon || '🏙️')}, note: ${JSON.stringify(c.note || '')}, sells: ${sells} }`;
+    }).join(',\n');
+
+    const content =
+`// Wonderland Online — NPC Shop Data
+// Auto-exported from the UI on ${new Date().toLocaleDateString()}
+// Edit this array directly or use the "Add Info" button in the browser.
+
+const CITY_DATA = [
+${lines}
+];
+`;
+
+    const blob = new Blob([content], { type: 'text/javascript' });
+    const a    = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: 'data.js'
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('✓ data.js downloaded — replace your file to save permanently');
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  //  UTILS
+  // ─────────────────────────────────────────────────────────────────
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function escAttr(str) {
+    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  function flashInvalid(inputId, msg) {
+    const el = document.getElementById(inputId);
+    el.style.borderColor = 'var(--danger)';
+    el.focus();
+    toast('⚠ ' + msg);
+    el.addEventListener('input', () => { el.style.borderColor = ''; }, { once: true });
+  }
+
+  // ── Init ────────────────────────────────────────────────────────
+
+  resetItemInputs();
+  renderAll();
 </script>
 </body>
 </html>
