@@ -210,6 +210,13 @@
       flex-shrink: 0;
     }
 
+    .tag-price {
+      color: var(--accent2);
+      font-size: 0.72rem;
+      margin-left: 0.2rem;
+      opacity: 0.88;
+    }
+
     /* ── Empty search state ── */
     #empty {
       display: none;
@@ -380,7 +387,8 @@
       gap: 0.45rem;
     }
 
-    .item-input-row input { flex: 1; }
+    .item-input-row .item-field { flex: 1; }
+    .item-input-row .item-price-field { width: 88px; flex-shrink: 0; }
 
     .remove-item-btn {
       flex-shrink: 0;
@@ -547,6 +555,11 @@
           <input id="item-name" type="text" placeholder="e.g. Iron Ore" />
         </div>
 
+        <div class="form-group">
+          <label for="item-price">Price</label>
+          <input id="item-price" type="number" placeholder="e.g. 30" min="0" />
+        </div>
+
         <button type="submit" class="btn-primary">Add Item</button>
       </form>
     </div>
@@ -586,20 +599,31 @@
   }
 
   // Merge CITY_DATA (from data.js) with any localStorage additions
+  function normalizeItem(item) {
+    if (typeof item === 'string') return { name: item, price: '' };
+    return { name: item.name, price: item.price ?? '' };
+  }
+
   function getMergedData() {
     const additions = loadAdditions();
 
     // Deep-copy base data
     const merged = CITY_DATA.map(c => ({
       ...c,
-      sells: [...c.sells, ...(additions.extraItems[c.city] || [])]
+      sells: [
+        ...c.sells.map(normalizeItem),
+        ...(additions.extraItems[c.city] || []).map(normalizeItem)
+      ]
     }));
 
     // Append new cities added via UI
     additions.newCities.forEach(nc => {
       merged.push({
         ...nc,
-        sells: [...nc.sells, ...(additions.extraItems[nc.city] || [])]
+        sells: [
+          ...nc.sells.map(normalizeItem),
+          ...(additions.extraItems[nc.city] || []).map(normalizeItem)
+        ]
       });
     });
 
@@ -619,7 +643,13 @@
     card.dataset.city = entry.city;
 
     const tags = entry.sells
-      .map(item => `<span class="tag"><span class="dot"></span>${escHtml(item)}</span>`)
+      .map(item => {
+        const priceNum = item.price !== '' && item.price !== null ? Number(item.price) : NaN;
+        const priceHtml = !isNaN(priceNum)
+          ? `<span class="tag-price">${priceNum.toLocaleString()}g</span>`
+          : '';
+        return `<span class="tag" data-name="${escAttr(item.name)}"><span class="dot"></span>${escHtml(item.name)}${priceHtml}</span>`;
+      })
       .join('');
 
     card.innerHTML = `
@@ -658,7 +688,7 @@
 
     cards.forEach(card => {
       const cityName = card.dataset.city.toLowerCase();
-      const tags     = [...card.querySelectorAll('.tag')].map(t => t.textContent.toLowerCase()).join(' ');
+      const tags     = [...card.querySelectorAll('.tag')].map(t => (t.dataset.name || t.textContent).toLowerCase()).join(' ');
       const match    = !q || cityName.includes(q) || tags.includes(q);
       card.classList.toggle('hidden', !match);
       if (match) visible++;
@@ -683,6 +713,7 @@
     document.getElementById('city-form').reset();
     resetItemInputs();
     document.getElementById('item-name').value = '';
+    document.getElementById('item-price').value = '';
   }
 
   function closeModal() {
@@ -724,12 +755,13 @@
     addItemInputRow(); // start with one blank row
   }
 
-  function addItemInputRow(value = '') {
+  function addItemInputRow(name = '', price = '') {
     const list = document.getElementById('city-items-list');
     const row  = document.createElement('div');
     row.className = 'item-input-row';
     row.innerHTML = `
-      <input type="text" placeholder="Item name" class="item-field" value="${escAttr(value)}" />
+      <input type="text" placeholder="Item name" class="item-field" value="${escAttr(name)}" />
+      <input type="number" placeholder="Price" class="item-price-field" min="0" value="${escAttr(price)}" />
       <button type="button" class="remove-item-btn" aria-label="Remove item">✕</button>
     `;
     row.querySelector('.remove-item-btn').addEventListener('click', () => {
@@ -765,9 +797,9 @@
 
     const icon = document.getElementById('city-icon').value.trim() || '🏙️';
     const note = document.getElementById('city-note').value.trim();
-    const sells = [...document.querySelectorAll('.item-field')]
-      .map(i => i.value.trim())
-      .filter(Boolean);
+    const sells = [...document.querySelectorAll('.item-input-row')]
+      .map(row => ({ name: row.querySelector('.item-field').value.trim(), price: row.querySelector('.item-price-field').value.trim() }))
+      .filter(item => item.name);
 
     additions.newCities.push({ city: name, icon, note, sells });
     saveAdditions(additions);
@@ -801,9 +833,10 @@
     const itemName = document.getElementById('item-name').value.trim();
     if (!itemName) { flashInvalid('item-name', 'Item name is required'); return; }
 
+    const price = document.getElementById('item-price').value.trim();
     const additions = loadAdditions();
     if (!additions.extraItems[cityName]) additions.extraItems[cityName] = [];
-    additions.extraItems[cityName].push(itemName);
+    additions.extraItems[cityName].push({ name: itemName, price });
     saveAdditions(additions);
 
     renderAll();
