@@ -1425,12 +1425,45 @@ ${gamblerLines}
     if (file) { ocrDropzone.classList.add('drag-over'); setTimeout(() => ocrDropzone.classList.remove('drag-over'), 400); processOcrImage(file); }
   });
 
+  // Returns true if the image looks like a WLO lucky-draw log:
+  // characteristic red text (high R, low G, low B) on a dark background.
+  async function isWloLuckyDrawImage(bmp) {
+    const MAX_SAMPLE = 600; // sample down for speed
+    const scale  = Math.min(1, MAX_SAMPLE / Math.max(bmp.width, bmp.height));
+    const sw = Math.round(bmp.width  * scale);
+    const sh = Math.round(bmp.height * scale);
+    const c  = document.createElement('canvas');
+    c.width = sw; c.height = sh;
+    const cx = c.getContext('2d');
+    cx.drawImage(bmp, 0, 0, sw, sh);
+    const { data } = cx.getImageData(0, 0, sw, sh);
+    let redPx = 0, total = sw * sh;
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i], g = data[i+1], b = data[i+2];
+      // red text pixel: strongly red, low green & blue
+      if (r > 160 && g < 90 && b < 90) redPx++;
+    }
+    const redRatio = redPx / total;
+    // expect at least ~1% vivid-red pixels
+    return redRatio >= 0.01;
+  }
+
   async function processOcrImage(file) {
-    ocrStatus.textContent = '🔍 Running OCR… this may take a moment';
+    ocrStatus.textContent = '🔍 Checking image…';
     ocrDropzone.style.pointerEvents = 'none';
     try {
+      const bmp = await createImageBitmap(file);
+
+      // ── Validate: must look like a WLO lucky-draw screenshot ──
+      const valid = await isWloLuckyDrawImage(bmp);
+      if (!valid) {
+        ocrStatus.textContent = '❌ Doesn\'t look like a WLO lucky draw screenshot — please upload the correct image';
+        return;
+      }
+
+      ocrStatus.textContent = '🔍 Running OCR… this may take a moment';
+
       // boost contrast to help OCR on dark game UI
-      const bmp    = await createImageBitmap(file);
       const canvas = document.createElement('canvas');
       canvas.width  = bmp.width;
       canvas.height = bmp.height;
