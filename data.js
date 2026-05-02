@@ -24,7 +24,7 @@ const CITY_DATA = [
 const KYOTO_GAMBLER_DATA = [
   { name: "Lantern Cannon",      rarity: "common" },
   { name: "Vines Bouquets",      rarity: "common" },
-  { name: "1x Holy Pot",         rarity: "common" },
+  { name: "4x Holy Pot",         rarity: "common" },
   { name: "Pet Lethe Scroll",    rarity: "common" },
   { name: "Lollipop",            rarity: "common" },
   { name: "Space Agreement",     rarity: "common" },
