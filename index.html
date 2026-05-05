@@ -664,82 +664,9 @@
     .badge-not_declared        { background: #1e2235; color: #a9b4e8; }
     .gambler-item-card.rarity-not_declared { border-left: 3px solid #6b7399; }
 
-    /* ── OCR drop zone ── */
-    .ocr-dropzone {
-      position: relative;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 1.3rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .2s, background .2s;
-      margin-bottom: 1rem;
-    }
-    .ocr-dropzone:hover, .ocr-dropzone.drag-over {
-      border-color: var(--accent2);
-      background: #1a160a;
-    }
-    .ocr-dropzone input[type=file] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-    .ocr-dropzone-icon { font-size: 1.6rem; display: block; margin-bottom: 0.3rem; pointer-events: none; }
-    .ocr-dropzone-label { font-size: 0.88rem; color: var(--muted); pointer-events: none; }
-    .ocr-dropzone-label strong { color: var(--accent2); }
-    .ocr-status {
-      font-size: 0.82rem;
-      color: var(--muted);
-      text-align: center;
-      min-height: 1.2em;
-      margin-bottom: 0.6rem;
-    }
 
-    /* ── OCR preview overlay ── */
-    #ocr-preview-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(5,6,15,0.82);
-      backdrop-filter: blur(5px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 110;
-      padding: 1rem;
-    }
-    #ocr-preview-overlay.hidden { display: none; }
-    #ocr-preview-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: calc(var(--radius) + 4px);
-      width: 100%;
-      max-width: 420px;
-      max-height: 88vh;
-      overflow-y: auto;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      box-shadow: 0 24px 60px #00000088;
-    }
-    #ocr-preview-box h3 { font-size: 1rem; font-weight: 800; color: #e8ecff; }
-    .ocr-item-row {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.38rem 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.88rem;
-    }
-    .ocr-item-row:last-child { border-bottom: none; }
-    .ocr-item-row input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
-    .ocr-item-row label { flex: 1; color: var(--text); cursor: pointer; }
-    .ocr-item-duplicate { color: var(--muted); font-size: 0.72rem; flex-shrink: 0; white-space: nowrap; }
-    .ocr-preview-actions { display: flex; gap: 0.6rem; }
-    .ocr-preview-actions button { flex: 1; }
+
+
   </style>
 </head>
 <body>
@@ -802,17 +729,6 @@
         <span class="legend-item"><span class="legend-dot" style="background:#6b7399"></span>Not Declared</span>
       </div>
     </div>
-
-    <!-- OCR image upload -->
-    <div class="ocr-dropzone" id="ocr-dropzone">
-      <input type="file" id="ocr-file-input" accept="image/*" />
-      <span class="ocr-dropzone-icon">📷</span>
-      <div class="ocr-dropzone-label">
-        Drop a screenshot here, <strong>click to upload</strong>, or <strong>Ctrl+V</strong> to paste<br>
-        <span style="font-size:0.76rem">Items auto-detected from &ldquo;received &hellip;&rdquo; lines &mdash; rarity set to <em>Not Declared</em></span>
-      </div>
-    </div>
-    <div class="ocr-status" id="ocr-status"></div>
 
     <div class="gambler-grid" id="gambler-grid"></div>
   </section>
@@ -916,28 +832,12 @@
   </div>
 </div>
 
-<!-- ── OCR preview overlay ── -->
-<div id="ocr-preview-overlay" class="hidden">
-  <div id="ocr-preview-box">
-    <h3>📋 Detected Items</h3>
-    <p style="font-size:0.8rem;color:var(--muted)">Uncheck items you don&rsquo;t want to add. All will be set to <em>Not Declared</em> rarity &mdash; edit rarity individually afterwards.</p>
-    <div id="ocr-item-list"></div>
-    <div class="ocr-preview-actions">
-      <button class="btn-primary" id="ocr-confirm-btn">Add Selected</button>
-      <button class="btn-header" id="ocr-cancel-btn" style="border:1px solid var(--border)">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <!-- ── Toast notification ── -->
 <div id="toast" aria-live="polite"></div>
 
 <footer>
   Wonderland Online NPC Guide &nbsp;·&nbsp; Data in <code>data.js</code> — use Export to save UI changes
 </footer>
-
-<!-- Tesseract.js OCR -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <!-- Data file (edit data.js to update base data) -->
 <script src="data.js"></script>
@@ -1389,164 +1289,6 @@ ${gamblerLines}
     renderGambler();
     closeModal();
     toast(`✓ "${name}" added to Kyoto Gambler`);
-  });
-
-  // ─────────────────────────────────────────────────────────────────
-  //  OCR — IMAGE IMPORT
-  // ─────────────────────────────────────────────────────────────────
-
-  const ocrDropzone  = document.getElementById('ocr-dropzone');
-  const ocrFileInput = document.getElementById('ocr-file-input');
-  const ocrStatus    = document.getElementById('ocr-status');
-  const ocrOverlay   = document.getElementById('ocr-preview-overlay');
-  const ocrItemList  = document.getElementById('ocr-item-list');
-
-  ocrDropzone.addEventListener('dragover', e => { e.preventDefault(); ocrDropzone.classList.add('drag-over'); });
-  ocrDropzone.addEventListener('dragleave', () => ocrDropzone.classList.remove('drag-over'));
-  ocrDropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    ocrDropzone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) processOcrImage(file);
-  });
-  ocrFileInput.addEventListener('change', () => {
-    const file = ocrFileInput.files[0];
-    if (file) processOcrImage(file);
-    ocrFileInput.value = '';
-  });
-
-  // Ctrl+V / paste anywhere on the gambler page
-  document.addEventListener('paste', e => {
-    const page = document.getElementById('page-gambler');
-    if (!page.classList.contains('active')) return;
-    const item = [...e.clipboardData.items].find(i => i.type.startsWith('image/'));
-    if (!item) return;
-    const file = item.getAsFile();
-    if (file) { ocrDropzone.classList.add('drag-over'); setTimeout(() => ocrDropzone.classList.remove('drag-over'), 400); processOcrImage(file); }
-  });
-
-  // Returns true if the image looks like a WLO lucky-draw log:
-  // characteristic red text (high R, low G, low B) on a dark background.
-  async function isWloLuckyDrawImage(bmp) {
-    const MAX_SAMPLE = 600; // sample down for speed
-    const scale  = Math.min(1, MAX_SAMPLE / Math.max(bmp.width, bmp.height));
-    const sw = Math.round(bmp.width  * scale);
-    const sh = Math.round(bmp.height * scale);
-    const c  = document.createElement('canvas');
-    c.width = sw; c.height = sh;
-    const cx = c.getContext('2d');
-    cx.drawImage(bmp, 0, 0, sw, sh);
-    const { data } = cx.getImageData(0, 0, sw, sh);
-    let redPx = 0, total = sw * sh;
-    for (let i = 0; i < data.length; i += 4) {
-      const r = data[i], g = data[i+1], b = data[i+2];
-      // red text pixel: strongly red, low green & blue
-      if (r > 160 && g < 90 && b < 90) redPx++;
-    }
-    const redRatio = redPx / total;
-    // expect at least ~1% vivid-red pixels
-    return redRatio >= 0.01;
-  }
-
-  async function processOcrImage(file) {
-    ocrStatus.textContent = '🔍 Checking image…';
-    ocrDropzone.style.pointerEvents = 'none';
-    try {
-      const bmp = await createImageBitmap(file);
-
-      // ── Validate: must look like a WLO lucky-draw screenshot ──
-      const valid = await isWloLuckyDrawImage(bmp);
-      if (!valid) {
-        ocrStatus.textContent = '❌ Doesn\'t look like a WLO lucky draw screenshot — please upload the correct image';
-        return;
-      }
-
-      ocrStatus.textContent = '🔍 Running OCR… this may take a moment';
-
-      // boost contrast to help OCR on dark game UI
-      const canvas = document.createElement('canvas');
-      canvas.width  = bmp.width;
-      canvas.height = bmp.height;
-      const ctx = canvas.getContext('2d');
-      ctx.filter = 'contrast(2) grayscale(1) brightness(1.3)';
-      ctx.drawImage(bmp, 0, 0);
-      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-
-      const result = await Tesseract.recognize(blob, 'eng');
-      const found  = parseOcrItems(result.data.text);
-
-      if (!found.length) {
-        ocrStatus.textContent = '⚠️ No items detected — try a clearer screenshot';
-      } else {
-        ocrStatus.textContent = '';
-        showOcrPreview(found);
-      }
-    } catch (err) {
-      console.error(err);
-      ocrStatus.textContent = '❌ OCR failed — check the browser console';
-    } finally {
-      ocrDropzone.style.pointerEvents = '';
-    }
-  }
-
-  function parseOcrItems(text) {
-    const seen = new Set();
-    const results = [];
-    for (const line of text.split(/\r?\n/)) {
-      // match: "received <Item Name>" optionally followed by period/spaces
-      const m = line.match(/received\s+(.+?)[\.\s]*$/i);
-      if (!m) continue;
-      let name = m[1].trim().replace(/\s+/g, ' ').replace(/[.\s]+$/, '');
-      if (!name || name.length < 2) continue;
-      const key = name.toLowerCase();
-      if (seen.has(key)) continue;
-      seen.add(key);
-      results.push(name);
-    }
-    return results;
-  }
-
-  function showOcrPreview(items) {
-    const existing = new Set(getMergedGamblerData().map(i => i.name.toLowerCase()));
-    ocrItemList.innerHTML = '';
-    items.forEach((name, idx) => {
-      const isDupe = existing.has(name.toLowerCase());
-      const row    = document.createElement('div');
-      row.className = 'ocr-item-row';
-      const id = `ocr-item-${idx}`;
-      row.innerHTML = `
-        <input type="checkbox" id="${id}" ${isDupe ? '' : 'checked'} />
-        <label for="${id}">${escHtml(name)}</label>
-        ${isDupe ? '<span class="ocr-item-duplicate">already exists</span>' : ''}
-      `;
-      ocrItemList.appendChild(row);
-    });
-    ocrOverlay.classList.remove('hidden');
-  }
-
-  document.getElementById('ocr-confirm-btn').addEventListener('click', () => {
-    const checked = [...ocrItemList.querySelectorAll('input[type=checkbox]:checked')]
-      .map(cb => cb.nextElementSibling.textContent.trim())
-      .filter(Boolean);
-    if (checked.length) {
-      const existing  = new Set(getMergedGamblerData().map(i => i.name.toLowerCase()));
-      const additions = loadGamblerAdditions();
-      let added = 0;
-      checked.forEach(name => {
-        if (!existing.has(name.toLowerCase())) {
-          additions.push({ name, rarity: 'not_declared' });
-          added++;
-        }
-      });
-      saveGamblerAdditions(additions);
-      renderGambler();
-      toast(`✓ ${added} item${added !== 1 ? 's' : ''} added from screenshot`);
-    }
-    ocrOverlay.classList.add('hidden');
-  });
-
-  document.getElementById('ocr-cancel-btn').addEventListener('click', () => {
-    ocrOverlay.classList.add('hidden');
   });
 
   // ─────────────────────────────────────────────────────────────────

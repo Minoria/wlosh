@@ -1,5 +1,5 @@
 // Wonderland Online — NPC Shop Data
-// Auto-exported from the UI on 5/2/2026
+// Auto-exported from the UI on 5/3/2026
 // Edit this array directly or use the "Add Info" button in the browser.
 
 const CITY_DATA = [
@@ -17,22 +17,29 @@ const CITY_DATA = [
   { city: "South Pole", icon: "🧊", note: "", sells: [{"name":"Furs","price":""},{"name":"Skins","price":""}] },
   { city: "Persia", icon: "🪬", note: "", sells: [{"name":"Jades","price":""}] },
   { city: "Bangkok", icon: "⚗️", note: "", sells: [{"name":"Sulfur","price":""},{"name":"Sealed Potion","price":""}] },
+  { city: "rumah null", icon: "🏙️", note: "", sells: [{"name":"polar","price":""}] }
 ];
 
-// ── Kyoto Gambler NPC — Lucky Draw Items ──
+// Kyoto Gambler NPC — Lucky Draw Items
 // rarity: "common" | "rare" | "ultra_rare"
 const KYOTO_GAMBLER_DATA = [
-  { name: "Lantern Cannon",      rarity: "common" },
-  { name: "Vines Bouquets",      rarity: "common" },
-  { name: "4x Holy Pot",         rarity: "common" },
-  { name: "Pet Lethe Scroll",    rarity: "common" },
-  { name: "Lollipop",            rarity: "common" },
-  { name: "Space Agreement",     rarity: "common" },
-  { name: "Alchemy Book 2",      rarity: "common" },
-  { name: "Training Fare (1h)",  rarity: "rare" },
-  { name: "6x Holy Pot",         rarity: "rare" },
-  { name: "Friendly Brooch",     rarity: "ultra_rare" },
-  { name: "Cute Brooch",         rarity: "ultra_rare" },
-  { name: "Training Fare (6h)",  rarity: "ultra_rare" },
-  { name: "10x Holy Pot",        rarity: "ultra_rare" },
+  { name: "Lantern Cannon", rarity: "common" },
+  { name: "Vines Bouquets", rarity: "common" },
+  { name: "4x Holy Pot", rarity: "common" },
+  { name: "Pet Lethe Scroll", rarity: "common" },
+  { name: "Lollipop", rarity: "common" },
+  { name: "Space Agreement", rarity: "common" },
+  { name: "Alchemy Book 2", rarity: "common" },
+  { name: "Training Fare (1h)", rarity: "rare" },
+  { name: "6x Holy Pot", rarity: "rare" },
+  { name: "Friendly Brooch", rarity: "ultra_rare" },
+  { name: "Cute Brooch", rarity: "ultra_rare" },
+  { name: "Training Fare (6h)", rarity: "ultra_rare" },
+  { name: "10x Holy Pot", rarity: "ultra_rare" },
+  { name: "Love Banq", rarity: "common" },
+  { name: "Cute Jelly Voucher", rarity: "common" },
+  { name: "Azur Fur", rarity: "ultra_rare" },
+  { name: "Dat 40% crit bow", rarity: "ultra_rare" },
+  { name: "Grenade", rarity: "common" }
+
 ];
